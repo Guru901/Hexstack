@@ -309,18 +309,12 @@ impl ProjectSetup {
             .map(|s| s.as_str())
             .collect();
 
-        // Add tokio if we have components that need async runtime
         if components_set.contains("Ripress") || components_set.contains("Wynd") {
-            self.add_dependency(
-                "tokio",
-                Some(&vec!["macros".to_string(), "rt-multi-thread".to_string()]),
-                None,
-                false,
-            )
-            .await?;
+            let tokio_feats = vec!["macros".to_string(), "rt-multi-thread".to_string()];
+            self.add_dependency("tokio", Some(&tokio_feats), None, false)
+                .await?;
         }
 
-        // Add component-specific features
         if components_set.contains("Ripress") && components_set.contains("Wynd") {
             let ripress_feats = vec!["with-wynd".to_string()];
             self.add_dependency("ripress", Some(&ripress_feats), None, false)
