@@ -96,7 +96,7 @@ impl ProjectSetup {
                 ProjectTemplate {
                     name: "Ripress Basic".to_string(),
                     dependencies: vec!["Ripress".to_string()],
-                    content: read_to_string("./templates/ripress_basic.rs")
+                    content: read_to_string("./src/templates/ripress_basic.rs")
                         .await
                         .unwrap(),
                 },
@@ -106,7 +106,9 @@ impl ProjectSetup {
                 ProjectTemplate {
                     name: "Wynd Basic".to_string(),
                     dependencies: vec!["Wynd".to_string()],
-                    content: read_to_string("./templates/wynd_basic.rs").await.unwrap(),
+                    content: read_to_string("./src/templates/wynd_basic.rs")
+                        .await
+                        .unwrap(),
                 },
             ),
             (
@@ -114,7 +116,9 @@ impl ProjectSetup {
                 ProjectTemplate {
                     name: "Ripress + Wynd".to_string(),
                     dependencies: vec!["Ripress".to_string(), "Wynd".to_string()],
-                    content: read_to_string("./templates/ripress_wynd.rs").await.unwrap(),
+                    content: read_to_string("./src/templates/ripress_wynd.rs")
+                        .await
+                        .unwrap(),
                 },
             ),
             (
