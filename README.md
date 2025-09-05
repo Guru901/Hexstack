@@ -1,7 +1,6 @@
 # HexStack
 
 [![Crates.io](https://img.shields.io/crates/v/hexstack)](https://crates.io/crates/hexstack)
-[![License](https://img.shields.io/crates/l/hexstack)](LICENSE)
 
 ### A modern, full-stack web framework for Rust
 
