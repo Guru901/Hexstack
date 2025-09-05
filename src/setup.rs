@@ -272,7 +272,7 @@ impl ProjectSetup {
         }
 
         if let Some(ver) = version {
-            cmd.arg("--version").arg(ver);
+            cmd.arg("--vers").arg(ver);
         }
 
         let status = cmd
