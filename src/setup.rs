@@ -2,6 +2,7 @@ use anyhow::{Context, Result};
 use indicatif::{ProgressBar, ProgressStyle};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+use std::path::PathBuf;
 use tokio::process::Command;
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
@@ -286,15 +287,12 @@ impl ProjectSetup {
         Ok(())
     }
 
-// At the top of src/setup.rs, add:
-use std::path::PathBuf; // if you prefer explicit import
+    // At the top of src/setup.rs, add:
 
-// …
+    // …
 
     async fn write_main_file(&self, template: &ProjectTemplate) -> Result<()> {
-        let main_path = PathBuf::from(&self.name)
-            .join("src")
-            .join("main.rs");
+        let main_path = PathBuf::from(&self.name).join("src").join("main.rs");
 
         // Write template content directly to main.rs
         tokio::fs::write(&main_path, &template.content)
