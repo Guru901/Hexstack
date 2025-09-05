@@ -2,7 +2,7 @@ use anyhow::{Context, Result};
 use indicatif::{ProgressBar, ProgressStyle};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
-use tokio::{fs::read_to_string, process::Command};
+use tokio::process::Command;
 
 pub mod templates;
 
