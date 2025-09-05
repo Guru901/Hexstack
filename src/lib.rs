@@ -26,9 +26,7 @@ pub async fn create_project() -> Result<()> {
     let project_name: String = Input::with_theme(&theme)
         .with_prompt("What should the name of your project be")
         .default("my-app".into())
-        .interact_text()
-        .unwrap();
-
+        .interact_text()?;
     println!("📦 Creating project `{}`", project_name);
 
     // Component selection
