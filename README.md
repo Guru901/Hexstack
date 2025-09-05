@@ -8,7 +8,7 @@ Please star the repo if you like it, so that I know someone is using it.
 
 ## What is HexStack?
 
-HexStack is a complete, modern web framework for Rust that combines the familiar developer experience of Express.js with the performance and safety of Rust. HexStack brings together three powerful libraries to create a unified full-stack development experience:
+HexStack is a complete, modern web framework for Rust that combines the familiar developer experience of Express.js, WS and Drizzle with the performance and safety of Rust. HexStack brings together three powerful libraries to create a unified full-stack development experience:
 
 - **[Ripress](https://github.com/guru901/ripress)** - Lightning-fast HTTP server (97% of Actix-Web performance)
 - **[Wynd](https://github.com/guru901/wynd)** - Simple, powerful WebSocket server
