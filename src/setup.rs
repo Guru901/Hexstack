@@ -206,15 +206,16 @@ impl ProjectSetup {
     }
 
     async fn create_cargo_project(&self) -> Result<()> {
-        let status = Command::new("cargo")
+        let output = Command::new("cargo")
             .arg("new")
             .arg(&self.name)
-            .status()
+            .output()
             .await
             .context("Failed to execute cargo new")?;
 
-        if !status.success() {
-            anyhow::bail!("Cargo new command failed");
+        if !output.status.success() {
+            let stderr = String::from_utf8_lossy(&output.stderr);
+            anyhow::bail!("`cargo new` failed: {}", stderr.trim());
         }
 
         Ok(())
