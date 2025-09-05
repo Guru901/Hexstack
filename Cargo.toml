@@ -5,7 +5,7 @@ edition = "2024"
 description = "Hex Stack - A simple stack to create modern backend applications that are fast and have the best in class developer experience."
 license = "MIT"
 authors = ["You guru911u@gmail.com"]
-keywords = ["backend", "server", "stack", "dx", "cli", "generator", "http", "websocket"]
+keywords = ["server", "cli", "generator", "http", "websocket"]
 repository = "https://github.com/guru901/ripress"
 categories = [
     "command-line-utilities",
