@@ -206,15 +206,16 @@ impl ProjectSetup {
     }
 
     async fn create_cargo_project(&self) -> Result<()> {
-        let status = Command::new("cargo")
+        let output = Command::new("cargo")
             .arg("new")
             .arg(&self.name)
-            .status()
+            .output()
             .await
             .context("Failed to execute cargo new")?;
 
-        if !status.success() {
-            anyhow::bail!("Cargo new command failed");
+        if !output.status.success() {
+            let stderr = String::from_utf8_lossy(&output.stderr);
+            anyhow::bail!("`cargo new` failed: {}", stderr.trim());
         }
 
         Ok(())
@@ -285,8 +286,15 @@ impl ProjectSetup {
         Ok(())
     }
 
+// At the top of src/setup.rs, add:
+use std::path::PathBuf; // if you prefer explicit import
+
+// …
+
     async fn write_main_file(&self, template: &ProjectTemplate) -> Result<()> {
-        let main_path = format!("{}/src/main.rs", self.name);
+        let main_path = PathBuf::from(&self.name)
+            .join("src")
+            .join("main.rs");
 
         // Write template content directly to main.rs
         tokio::fs::write(&main_path, &template.content)
