@@ -96,9 +96,7 @@ impl ProjectSetup {
                 ProjectTemplate {
                     name: "Ripress Basic".to_string(),
                     dependencies: vec!["Ripress".to_string()],
-                    content: read_to_string("./src/templates/ripress_basic.rs")
-                        .await
-                        .unwrap(),
+                    content: include_str!("./templates/ripress_basic.rs").to_string(),
                 },
             ),
             (
@@ -106,9 +104,7 @@ impl ProjectSetup {
                 ProjectTemplate {
                     name: "Wynd Basic".to_string(),
                     dependencies: vec!["Wynd".to_string()],
-                    content: read_to_string("./src/templates/wynd_basic.rs")
-                        .await
-                        .unwrap(),
+                    content: include_str!("./templates/wynd_basic.rs").to_string(),
                 },
             ),
             (
@@ -116,45 +112,7 @@ impl ProjectSetup {
                 ProjectTemplate {
                     name: "Ripress + Wynd".to_string(),
                     dependencies: vec!["Ripress".to_string(), "Wynd".to_string()],
-                    content: read_to_string("./src/templates/ripress_wynd.rs")
-                        .await
-                        .unwrap(),
-                },
-            ),
-            (
-                "lume".to_string(),
-                ProjectTemplate {
-                    name: "Lume Basic".to_string(),
-                    dependencies: vec!["Lume".to_string()],
-                    content: r#"comming soon!"#.to_string(),
-                },
-            ),
-            (
-                "ripress_lume".to_string(),
-                ProjectTemplate {
-                    name: "Ripress + Lume".to_string(),
-                    dependencies: vec!["Ripress".to_string(), "Lume".to_string()],
-                    content: r#"comming soon!"#.to_string(),
-                },
-            ),
-            (
-                "lume_wynd".to_string(),
-                ProjectTemplate {
-                    name: "Lume + Wynd".to_string(),
-                    dependencies: vec!["Lume".to_string(), "Wynd".to_string()],
-                    content: r#"comming soon!"#.to_string(),
-                },
-            ),
-            (
-                "all".to_string(),
-                ProjectTemplate {
-                    name: "Ripress + Lume + Wynd".to_string(),
-                    dependencies: vec![
-                        "Ripress".to_string(),
-                        "Lume".to_string(),
-                        "Wynd".to_string(),
-                    ],
-                    content: r#"comming soon!"#.to_string(),
+                    content: include_str!("./templates/ripress_wynd.rs").to_string(),
                 },
             ),
         ])
@@ -169,13 +127,9 @@ impl ProjectSetup {
 
         // Priority order for template selection
         let template_priorities = [
-            ("all", vec!["Ripress", "Lume", "Wynd"]),
-            ("ripress_lume", vec!["Ripress", "Lume"]),
             ("ripress_wynd", vec!["Ripress", "Wynd"]),
-            ("lume_wynd", vec!["Lume", "Wynd"]),
             ("ripress", vec!["Ripress"]),
             ("wynd", vec!["Wynd"]),
-            ("lume", vec!["Lume"]),
         ];
 
         for (template_key, required_components) in &template_priorities {

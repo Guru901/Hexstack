@@ -31,7 +31,7 @@ async fn main() -> Result<()> {
     println!("📦 Creating project `{}`", project_name);
 
     // Component selection
-    let options = &["Ripress", "Lume", "Wynd"];
+    let options = &["Ripress", "Wynd"];
     let selections = MultiSelect::with_theme(&theme)
         .with_prompt("Select the components you want (space to select, enter to confirm)")
         .items(options)
