@@ -57,20 +57,8 @@ impl ProjectSetup {
                     }],
                     dev_dependencies: None,
                     template_file: Some("ripress".to_string()),
-                    description: "Fast HTTP server framework".to_string(),
-                },
-            ),
-            (
-                "Lume".to_string(),
-                ComponentConfig {
-                    dependencies: vec![Dependency {
-                        name: "lume".to_string(),
-                        features: None,
-                        version: None,
-                    }],
-                    dev_dependencies: None,
-                    template_file: Some("lume".to_string()),
-                    description: "Static site generator".to_string(),
+                    description: "An HTTP Framework with best in class developer experience"
+                        .to_string(),
                 },
             ),
             (
@@ -83,7 +71,7 @@ impl ProjectSetup {
                     }],
                     dev_dependencies: None,
                     template_file: Some("wynd".to_string()),
-                    description: "WebSocket library".to_string(),
+                    description: "An Event Driven WebSocket library".to_string(),
                 },
             ),
         ])
