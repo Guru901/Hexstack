@@ -79,7 +79,8 @@ cargo install hexstack
 Or add individual components to an existing project:
 
 ```sh
-cargo add ripress wynd
+cargo add ripress --features with-wynd
+cargo add wynd --features with-ripress
 cargo add tokio --features macros,rt-multi-thread
 ```
 
