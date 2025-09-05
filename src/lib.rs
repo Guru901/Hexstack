@@ -34,9 +34,7 @@ pub async fn create_project() -> Result<()> {
     let selections = MultiSelect::with_theme(&theme)
         .with_prompt("Select the components you want (space to select, enter to confirm)")
         .items(options)
-        .interact()
-        .unwrap();
-
+        .interact()?;
     let selected_components: Vec<String> = selections
         .into_iter()
         .map(|i| options[i].to_string())
