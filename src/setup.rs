@@ -286,8 +286,15 @@ impl ProjectSetup {
         Ok(())
     }
 
+// At the top of src/setup.rs, add:
+use std::path::PathBuf; // if you prefer explicit import
+
+// …
+
     async fn write_main_file(&self, template: &ProjectTemplate) -> Result<()> {
-        let main_path = format!("{}/src/main.rs", self.name);
+        let main_path = PathBuf::from(&self.name)
+            .join("src")
+            .join("main.rs");
 
         // Write template content directly to main.rs
         tokio::fs::write(&main_path, &template.content)
