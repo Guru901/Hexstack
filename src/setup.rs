@@ -316,11 +316,11 @@ impl ProjectSetup {
 
         // Add component-specific features
         if components_set.contains("Ripress") && components_set.contains("Wynd") {
-            // Update ripress with wynd feature
-            self.add_dependency("ripress", Some(&vec!["with-wynd".to_string()]), None, false)
+            let ripress_feats = vec!["with-wynd".to_string()];
+            self.add_dependency("ripress", Some(&ripress_feats), None, false)
                 .await?;
-            // Update wynd with ripress feature
-            self.add_dependency("wynd", Some(&vec!["with-ripress".to_string()]), None, false)
+            let wynd_feats = vec!["with-ripress".to_string()];
+            self.add_dependency("wynd", Some(&wynd_feats), None, false)
                 .await?;
         }
 
