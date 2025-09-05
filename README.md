@@ -105,21 +105,6 @@ hexstack new my-ws --template websocket
 - **`websocket`** - Wynd WebSocket server only
 - **`full`** - Ripress + Wynd integrated server _(default)_
 
-### Project Structure
-
-```
-my-app/
-├── Cargo.toml
-├── src/
-│   ├── main.rs
-│   ├── routes/
-│   │   └── mod.rs
-│   └── websocket/
-│       └── mod.rs
-├── static/
-└── README.md
-```
-
 ## Examples
 
 ### Full-Stack Application
