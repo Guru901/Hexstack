@@ -7,7 +7,7 @@ use dialoguer::{Input, MultiSelect, theme::ColorfulTheme};
 use crate::setup::ProjectSetup;
 use anyhow::Result;
 
-pub async fn create_project() -> Result<()> {
+pub async fn create_project(project_name: Option<&String>) -> Result<()> {
     let dull = Style::new().dim();
     let underline = Style::new().underlined();
     let theme = ColorfulTheme {
@@ -22,10 +22,16 @@ pub async fn create_project() -> Result<()> {
         ..ColorfulTheme::default()
     };
 
-    let project_name: String = Input::with_theme(&theme)
-        .with_prompt("What should the name of your project be")
-        .default("my-app".into())
-        .interact_text()?;
+    let project_name: String = match project_name {
+        Some(name) => name.clone(),
+        None => {
+            let project_name: String = Input::with_theme(&theme)
+                .with_prompt("What should the name of your project be")
+                .default("my-app".into())
+                .interact_text()?;
+            project_name
+        }
+    };
 
     println!("📦 Creating project `{}`", project_name);
 
