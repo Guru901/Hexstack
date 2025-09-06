@@ -381,6 +381,7 @@ dependencies = [
  "indicatif",
  "ripress",
  "serde",
+ "tempfile",
  "tokio",
  "wynd",
 ]

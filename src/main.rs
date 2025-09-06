@@ -8,14 +8,12 @@ async fn main() {
     }
 
     let command = &args[1];
-    let mut name = None;
-
-    if command == "new" {
-        name = args.get(2);
-    }
 
     match command.as_str() {
-        "new" => hexstack::create_project(name).await,
+        "new" => {
+            let (name, templates) = hexstack::parse_new_args(&args[2..]);
+            hexstack::create_project(name, templates).await
+        }
         _ => {
             eprintln!("Unknown command: {}", command);
             Err(anyhow::anyhow!("Unknown command"))

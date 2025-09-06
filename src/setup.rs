@@ -6,48 +6,54 @@ use std::path::PathBuf;
 use tokio::process::Command;
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
-struct ComponentConfig {
-    dependencies: Vec<Dependency>,
-    dev_dependencies: Option<Vec<Dependency>>,
-    template_file: Option<String>,
-    description: String,
+pub struct ComponentConfig {
+    pub dependencies: Vec<Dependency>,
+    pub dev_dependencies: Option<Vec<Dependency>>,
+    pub template_file: Option<String>,
+    pub description: String,
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
-struct Dependency {
-    name: String,
-    features: Option<Vec<String>>,
-    version: Option<String>,
+pub struct Dependency {
+    pub name: String,
+    pub features: Option<Vec<String>>,
+    pub version: Option<String>,
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
-struct ProjectTemplate {
-    name: String,
-    content: String,
-    dependencies: Vec<String>, // Required components
+pub struct ProjectTemplate {
+    pub name: String,
+    pub content: String,
+    pub dependencies: Vec<String>, // Required components
 }
 
 pub struct ProjectSetup {
-    name: String,
-    selected_components: Vec<String>,
+    pub name: String,
+    pub selected_components: Vec<String>,
     config: HashMap<String, ComponentConfig>,
     templates: HashMap<String, ProjectTemplate>,
 }
 
 impl ProjectSetup {
     pub async fn new(name: String, selected_components: Vec<String>) -> Self {
+        // Normalize component names to lowercase for case-insensitive matching
+        let normalized_components: Vec<String> = selected_components
+            .into_iter()
+            .map(|comp| comp.to_lowercase())
+            .collect();
+
         Self {
             name,
-            selected_components,
+            selected_components: normalized_components,
             config: Self::load_component_config(),
             templates: Self::load_templates().await,
         }
     }
 
-    fn load_component_config() -> HashMap<String, ComponentConfig> {
+    pub fn load_component_config() -> HashMap<String, ComponentConfig> {
         HashMap::from([
             (
-                "Ripress".to_string(),
+                "ripress".to_string(),
                 ComponentConfig {
                     dependencies: vec![Dependency {
                         name: "ripress".to_string(),
@@ -61,7 +67,7 @@ impl ProjectSetup {
                 },
             ),
             (
-                "Wynd".to_string(),
+                "wynd".to_string(),
                 ComponentConfig {
                     dependencies: vec![Dependency {
                         name: "wynd".to_string(),
@@ -76,13 +82,13 @@ impl ProjectSetup {
         ])
     }
 
-    async fn load_templates() -> HashMap<String, ProjectTemplate> {
+    pub async fn load_templates() -> HashMap<String, ProjectTemplate> {
         HashMap::from([
             (
                 "ripress".to_string(),
                 ProjectTemplate {
                     name: "Ripress Basic".to_string(),
-                    dependencies: vec!["Ripress".to_string()],
+                    dependencies: vec!["ripress".to_string()],
                     content: include_str!("./templates/ripress_basic.rs").to_string(),
                 },
             ),
@@ -90,7 +96,7 @@ impl ProjectSetup {
                 "wynd".to_string(),
                 ProjectTemplate {
                     name: "Wynd Basic".to_string(),
-                    dependencies: vec!["Wynd".to_string()],
+                    dependencies: vec!["wynd".to_string()],
                     content: include_str!("./templates/wynd_basic.rs").to_string(),
                 },
             ),
@@ -98,14 +104,14 @@ impl ProjectSetup {
                 "ripress_wynd".to_string(),
                 ProjectTemplate {
                     name: "Ripress + Wynd".to_string(),
-                    dependencies: vec!["Ripress".to_string(), "Wynd".to_string()],
+                    dependencies: vec!["ripress".to_string(), "wynd".to_string()],
                     content: include_str!("./templates/ripress_wynd.rs").to_string(),
                 },
             ),
         ])
     }
 
-    fn determine_template(&self) -> Option<&ProjectTemplate> {
+    pub fn determine_template(&self) -> Option<&ProjectTemplate> {
         let components_set: std::collections::HashSet<&str> = self
             .selected_components
             .iter()
@@ -114,9 +120,9 @@ impl ProjectSetup {
 
         // Priority order for template selection
         let template_priorities = [
-            ("ripress_wynd", vec!["Ripress", "Wynd"]),
-            ("ripress", vec!["Ripress"]),
-            ("wynd", vec!["Wynd"]),
+            ("ripress_wynd", vec!["ripress", "wynd"]),
+            ("ripress", vec!["ripress"]),
+            ("wynd", vec!["wynd"]),
         ];
 
         for (template_key, required_components) in &template_priorities {
@@ -188,7 +194,7 @@ impl ProjectSetup {
         Ok(())
     }
 
-    fn calculate_total_steps(&self) -> u64 {
+    pub fn calculate_total_steps(&self) -> u64 {
         1 + // cargo new
         self.selected_components.len() as u64 + // component dependencies
         1 + // template generation
@@ -309,13 +315,13 @@ impl ProjectSetup {
             .map(|s| s.as_str())
             .collect();
 
-        if components_set.contains("Ripress") || components_set.contains("Wynd") {
+        if components_set.contains("ripress") || components_set.contains("wynd") {
             let tokio_feats = vec!["macros".to_string(), "rt-multi-thread".to_string()];
             self.add_dependency("tokio", Some(&tokio_feats), None, false)
                 .await?;
         }
 
-        if components_set.contains("Ripress") && components_set.contains("Wynd") {
+        if components_set.contains("ripress") && components_set.contains("wynd") {
             let ripress_feats = vec!["with-wynd".to_string()];
             self.add_dependency("ripress", Some(&ripress_feats), None, false)
                 .await?;

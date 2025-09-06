@@ -23,3 +23,6 @@ ripress = { version = "1.8.4" , features = ["with-wynd"] }
 serde = { version = "1.0.219", features = ["derive"] }
 tokio = { version = "1.47.1", features = ["macros", "rt-multi-thread", "fs", "process"] }
 wynd = { version = "0.4.3" , features = ["with-ripress"] }
+
+[dev-dependencies]
+tempfile = "3.8.1"
