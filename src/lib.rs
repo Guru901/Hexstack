@@ -31,7 +31,7 @@ pub fn parse_new_args(args: &[String]) -> (Option<&String>, Option<Vec<String>>)
                         templates.push(args[i + 1].clone().to_lowercase());
                     } else {
                         eprintln!("Error: --template requires a valid value");
-                        eprint!("Valid values: full, ripress, wynd");
+                        eprintln!("Valid values: full, ripress, wynd");
                     }
                     i += 2;
                 } else {
