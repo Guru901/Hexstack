@@ -1,6 +1,10 @@
 # Changelog
 
-## [0.2.1] - 2025-09-5
+## [0.2.2] - 2025-09-05
+
+Now `hextack new` command can take a name. `hexstack new <project-name>` will create a new project with the given name and if no name is provided, it will prompt for a name.
+
+## [0.2.1] - 2025-09-05
 
 ## Changed
 
@@ -10,7 +14,7 @@
 
 - Fixed a bug in the `add_dependency` function that was causing the `--version` flag to be ignored.
 
-## [0.2.0] - 2025-09-5
+## [0.2.0] - 2025-09-05
 
 ### Added
 
