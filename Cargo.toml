@@ -6,7 +6,7 @@ description = "Hex Stack - A simple stack to create modern backend applications 
 license = "MIT"
 authors = ["You guru911u@gmail.com"]
 keywords = ["server", "cli", "generator", "http", "websocket"]
-repository = "https://github.com/guru901/ripress"
+repository = "https://github.com/guru901/hexstack"
 categories = [
     "command-line-utilities",
     "development-tools::build-utils",

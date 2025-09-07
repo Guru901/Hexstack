@@ -3,6 +3,7 @@ async fn main() {
     let args: Vec<String> = std::env::args().collect();
 
     if args.len() == 1 {
+        eprintln!("Incorrect usage");
         eprintln!("Usage: hexstack new");
         return;
     }
