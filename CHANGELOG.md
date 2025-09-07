@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.2.3] - 2025-09-07
+
+Fixed wrong repo url in Cargo.toml
+Improved error logging
+
 ## [0.2.2] - 2025-09-05
 
 Now you can specify templates with `--template` flag. For example, `hexstack new --template full` will create a new project with Ripress and Wynd integrated.
