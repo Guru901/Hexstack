@@ -2,7 +2,7 @@ mod setup;
 pub mod templates;
 
 use console::Style;
-use dialoguer::{Input, MultiSelect, theme::ColorfulTheme};
+use dialoguer::{Input, MultiSelect, Select, theme::ColorfulTheme};
 
 use crate::setup::ProjectSetup;
 use anyhow::Result;
@@ -90,27 +90,60 @@ pub async fn create_project(
 
     println!("📦 Creating project `{}`", project_name);
 
-    let options = &["ripress", "wynd"];
+    let component_options = &["ripress", "wynd"];
 
     let selected_components = match templates {
         Some(templates) => templates,
         None => {
             let selections = MultiSelect::with_theme(&theme)
                 .with_prompt("Select the components you want (space to select, enter to confirm)")
-                .items(options)
+                .items(component_options.iter().map(|f| capitalize(f)))
                 .interact()?;
 
             let selected_components: Vec<String> = selections
                 .into_iter()
-                .map(|i| options[i].to_string())
+                .map(|i| component_options[i].to_string())
                 .collect();
 
             selected_components
         }
     };
 
-    let project_setup = ProjectSetup::new(project_name, selected_components).await;
+    let frontend_options = vec!["react", "none"];
+
+    let selection = Select::with_theme(&theme)
+        .with_prompt("Select the frontend you want")
+        .items(frontend_options.clone().into_iter().map(|f| capitalize(f)))
+        .interact()?;
+
+    let selected_frontend = frontend_options[selection];
+
+    if selected_frontend == "none" {
+        println!("🚧 Creating project `{}` without frontend", project_name);
+    } else {
+        println!("🚧 Creating project `{}` with frontend", project_name);
+    }
+
+    let selected_frontend = match selected_frontend {
+        "react" => Some(String::from("react")),
+        "none" => None,
+        _ => {
+            eprintln!("Error: Invalid frontend");
+            None
+        }
+    };
+
+    let project_setup =
+        ProjectSetup::new(project_name, selected_components, selected_frontend).await;
     project_setup.build().await?;
 
     Ok(())
+}
+
+fn capitalize(word: &str) -> String {
+    let mut chars = word.chars();
+    match chars.next() {
+        None => String::new(),
+        Some(first) => first.to_uppercase().collect::<String>() + chars.as_str(),
+    }
 }

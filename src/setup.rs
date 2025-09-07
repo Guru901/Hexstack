@@ -23,19 +23,23 @@ pub struct Dependency {
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct ProjectTemplate {
     pub name: String,
-    pub content: String,
-    pub dependencies: Vec<String>, // Required components
+    pub github_url: String,
 }
 
 pub struct ProjectSetup {
     pub name: String,
     pub selected_components: Vec<String>,
+    pub selected_frontend: Option<String>,
     config: HashMap<String, ComponentConfig>,
     templates: HashMap<String, ProjectTemplate>,
 }
 
 impl ProjectSetup {
-    pub async fn new(name: String, selected_components: Vec<String>) -> Self {
+    pub async fn new(
+        name: String,
+        selected_components: Vec<String>,
+        selected_frontend: Option<String>,
+    ) -> Self {
         // Normalize component names to lowercase for case-insensitive matching
         let normalized_components: Vec<String> = selected_components
             .into_iter()
@@ -44,6 +48,7 @@ impl ProjectSetup {
 
         Self {
             name,
+            selected_frontend,
             selected_components: normalized_components,
             config: Self::load_component_config(),
             templates: Self::load_templates().await,
@@ -88,24 +93,21 @@ impl ProjectSetup {
                 "ripress".to_string(),
                 ProjectTemplate {
                     name: "Ripress Basic".to_string(),
-                    dependencies: vec!["ripress".to_string()],
-                    content: include_str!("./templates/ripress_basic.rs").to_string(),
+                    github_url: "https://github.com/Guru901/ripress-only".to_string(),
                 },
             ),
             (
                 "wynd".to_string(),
                 ProjectTemplate {
                     name: "Wynd Basic".to_string(),
-                    dependencies: vec!["wynd".to_string()],
-                    content: include_str!("./templates/wynd_basic.rs").to_string(),
+                    github_url: "https://github.com/Guru901/wynd-only".to_string(),
                 },
             ),
             (
                 "ripress_wynd".to_string(),
                 ProjectTemplate {
                     name: "Ripress + Wynd".to_string(),
-                    dependencies: vec!["ripress".to_string(), "wynd".to_string()],
-                    content: include_str!("./templates/ripress_wynd.rs").to_string(),
+                    github_url: "https://github.com/Guru901/ripress-wynd".to_string(),
                 },
             ),
         ])
@@ -153,40 +155,31 @@ impl ProjectSetup {
         let total_steps = self.calculate_total_steps();
         let pb = self.create_progress_bar(total_steps);
 
-        // Step 1: Create cargo project
-        pb.set_message("📦 Creating cargo project...");
-        self.create_cargo_project()
-            .await
-            .context("Failed to create cargo project")?;
-        pb.inc(1);
-
-        // Step 2: Add dependencies
-        for component in &self.selected_components {
-            pb.set_message(format!("📥 Adding {}...", component));
-            self.add_component_dependencies(component)
-                .await
-                .with_context(|| format!("Failed to add dependencies for {}", component))?;
-            pb.inc(1);
-        }
-
         // Step 3: Generate main.rs from template
         if let Some(template) = self.determine_template() {
             pb.set_message(format!("📝 Generating main.rs from {}...", template.name));
-            self.write_main_file(template)
+
+            let status = Command::new("git")
+                .arg("clone")
+                .arg(template.github_url.as_str())
+                .arg(self.name.as_str())
+                .status()
                 .await
-                .context("Failed to generate main.rs from template")?;
+                .unwrap();
+
+            if !status.success() {
+                anyhow::bail!("Failed to clone template: {}", template.name);
+            }
+
+            Command::new("cd").arg(&self.name);
+            Command::new("rm -rf .git");
+            Command::new("git init");
+
             pb.inc(1);
         } else {
             pb.set_message("⚠️  No specific template found, keeping default main.rs");
             pb.inc(1);
         }
-
-        // Step 4: Add common dependencies if needed
-        pb.set_message("🔧 Adding common dependencies...");
-        self.add_common_dependencies()
-            .await
-            .context("Failed to add common dependencies")?;
-        pb.inc(1);
 
         pb.finish_with_message("✅ Project setup complete!");
 
@@ -223,111 +216,6 @@ impl ProjectSetup {
         if !output.status.success() {
             let stderr = String::from_utf8_lossy(&output.stderr);
             anyhow::bail!("`cargo new` failed: {}", stderr.trim());
-        }
-
-        Ok(())
-    }
-
-    async fn add_component_dependencies(&self, component: &str) -> Result<()> {
-        if let Some(config) = self.config.get(component) {
-            // Add regular dependencies
-            for dep in &config.dependencies {
-                self.add_dependency(
-                    &dep.name,
-                    dep.features.as_deref(),
-                    dep.version.as_deref(),
-                    false,
-                )
-                .await?;
-            }
-
-            // Add dev dependencies if any
-            if let Some(dev_deps) = &config.dev_dependencies {
-                for dep in dev_deps {
-                    self.add_dependency(
-                        &dep.name,
-                        dep.features.as_deref(),
-                        dep.version.as_deref(),
-                        true,
-                    )
-                    .await?;
-                }
-            }
-        }
-        Ok(())
-    }
-
-    async fn add_dependency(
-        &self,
-        name: &str,
-        features: Option<&[String]>,
-        version: Option<&str>,
-        is_dev: bool,
-    ) -> Result<()> {
-        let mut cmd = Command::new("cargo");
-        cmd.arg("add").arg(name).current_dir(&self.name);
-
-        if is_dev {
-            cmd.arg("--dev");
-        }
-
-        if let Some(feat) = features {
-            if !feat.is_empty() {
-                cmd.arg("--features").arg(feat.join(","));
-            }
-        }
-
-        if let Some(ver) = version {
-            cmd.arg("--vers").arg(ver);
-        }
-
-        let status = cmd
-            .status()
-            .await
-            .with_context(|| format!("Failed to execute cargo add for {}", name))?;
-
-        if !status.success() {
-            anyhow::bail!("Failed to add dependency: {}", name);
-        }
-
-        Ok(())
-    }
-
-    // At the top of src/setup.rs, add:
-
-    // …
-
-    async fn write_main_file(&self, template: &ProjectTemplate) -> Result<()> {
-        let main_path = PathBuf::from(&self.name).join("src").join("main.rs");
-
-        // Write template content directly to main.rs
-        tokio::fs::write(&main_path, &template.content)
-            .await
-            .with_context(|| format!("Failed to write main.rs with template: {}", template.name))?;
-
-        Ok(())
-    }
-
-    async fn add_common_dependencies(&self) -> Result<()> {
-        let components_set: std::collections::HashSet<&str> = self
-            .selected_components
-            .iter()
-            .map(|s| s.as_str())
-            .collect();
-
-        if components_set.contains("ripress") || components_set.contains("wynd") {
-            let tokio_feats = vec!["macros".to_string(), "rt-multi-thread".to_string()];
-            self.add_dependency("tokio", Some(&tokio_feats), None, false)
-                .await?;
-        }
-
-        if components_set.contains("ripress") && components_set.contains("wynd") {
-            let ripress_feats = vec!["with-wynd".to_string()];
-            self.add_dependency("ripress", Some(&ripress_feats), None, false)
-                .await?;
-            let wynd_feats = vec!["with-ripress".to_string()];
-            self.add_dependency("wynd", Some(&wynd_feats), None, false)
-                .await?;
         }
 
         Ok(())

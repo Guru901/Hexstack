@@ -8,7 +8,7 @@ async fn test_component_name_normalization() {
         "Wynd".to_string(),
         "ripress".to_string(),
     ];
-    let setup = ProjectSetup::new("test-project".to_string(), components).await;
+    let setup = ProjectSetup::new("test-project".to_string(), components, None).await;
 
     assert_eq!(
         setup.selected_components,
@@ -20,7 +20,7 @@ async fn test_component_name_normalization() {
 async fn test_template_selection_single_component() {
     // Test template selection for single components
     let components = vec!["ripress".to_string()];
-    let setup = ProjectSetup::new("test-project".to_string(), components).await;
+    let setup = ProjectSetup::new("test-project".to_string(), components, None).await;
 
     let template = setup.determine_template();
     assert!(template.is_some());
@@ -31,7 +31,7 @@ async fn test_template_selection_single_component() {
 async fn test_template_selection_multiple_components() {
     // Test template selection for multiple components
     let components = vec!["ripress".to_string(), "wynd".to_string()];
-    let setup = ProjectSetup::new("test-project".to_string(), components).await;
+    let setup = ProjectSetup::new("test-project".to_string(), components, None).await;
 
     let template = setup.determine_template();
     assert!(template.is_some());
@@ -42,7 +42,7 @@ async fn test_template_selection_multiple_components() {
 async fn test_template_selection_case_insensitive() {
     // Test that template selection works with different cases
     let components = vec!["RIPRESS".to_string(), "WyNd".to_string()];
-    let setup = ProjectSetup::new("test-project".to_string(), components).await;
+    let setup = ProjectSetup::new("test-project".to_string(), components, None).await;
 
     let template = setup.determine_template();
     assert!(template.is_some());
@@ -53,7 +53,7 @@ async fn test_template_selection_case_insensitive() {
 async fn test_template_selection_wynd_only() {
     // Test template selection for Wynd only
     let components = vec!["wynd".to_string()];
-    let setup = ProjectSetup::new("test-project".to_string(), components).await;
+    let setup = ProjectSetup::new("test-project".to_string(), components, None).await;
 
     let template = setup.determine_template();
     assert!(template.is_some());
@@ -64,7 +64,7 @@ async fn test_template_selection_wynd_only() {
 async fn test_template_selection_no_match() {
     // Test template selection when no components match
     let components = vec!["unknown".to_string()];
-    let setup = ProjectSetup::new("test-project".to_string(), components).await;
+    let setup = ProjectSetup::new("test-project".to_string(), components, None).await;
 
     let template = setup.determine_template();
     assert!(template.is_none());
@@ -118,14 +118,14 @@ async fn test_template_loading() {
 async fn test_calculate_total_steps() {
     // Test step calculation for different component combinations
     let components = vec!["ripress".to_string(), "wynd".to_string()];
-    let setup = ProjectSetup::new("test-project".to_string(), components).await;
+    let setup = ProjectSetup::new("test-project".to_string(), components, None).await;
 
     let total_steps = setup.calculate_total_steps();
     // 1 (cargo new) + 2 (components) + 1 (template) + 1 (common deps) = 5
     assert_eq!(total_steps, 5);
 
     let single_component = vec!["ripress".to_string()];
-    let single_setup = ProjectSetup::new("test-project".to_string(), single_component).await;
+    let single_setup = ProjectSetup::new("test-project".to_string(), single_component, None).await;
     let single_steps = single_setup.calculate_total_steps();
     // 1 (cargo new) + 1 (component) + 1 (template) + 1 (common deps) = 4
     assert_eq!(single_steps, 4);
@@ -135,7 +135,7 @@ async fn test_calculate_total_steps() {
 async fn test_empty_components() {
     // Test behavior with empty component list
     let components = vec![];
-    let setup = ProjectSetup::new("test-project".to_string(), components).await;
+    let setup = ProjectSetup::new("test-project".to_string(), components, None).await;
 
     let template = setup.determine_template();
     assert!(template.is_none());
@@ -153,7 +153,7 @@ async fn test_duplicate_components() {
         "RIPRESS".to_string(),
         "wynd".to_string(),
     ];
-    let setup = ProjectSetup::new("test-project".to_string(), components).await;
+    let setup = ProjectSetup::new("test-project".to_string(), components, None).await;
 
     // Should normalize duplicates
     assert_eq!(setup.selected_components.len(), 3);
@@ -172,7 +172,7 @@ async fn test_duplicate_components() {
 async fn test_component_set_creation() {
     // Test that component sets are created correctly for matching
     let components = vec!["ripress".to_string(), "wynd".to_string()];
-    let setup = ProjectSetup::new("test-project".to_string(), components).await;
+    let setup = ProjectSetup::new("test-project".to_string(), components, None).await;
 
     let components_set: std::collections::HashSet<&str> = setup
         .selected_components
@@ -189,7 +189,7 @@ async fn test_component_set_creation() {
 async fn test_template_priority_order() {
     // Test that template priority order works correctly
     let components = vec!["ripress".to_string(), "wynd".to_string()];
-    let setup = ProjectSetup::new("test-project".to_string(), components).await;
+    let setup = ProjectSetup::new("test-project".to_string(), components, None).await;
 
     let template = setup.determine_template();
     assert!(template.is_some());
@@ -199,7 +199,7 @@ async fn test_template_priority_order() {
 
     // Test with only ripress - should select ripress template
     let ripress_only = vec!["ripress".to_string()];
-    let ripress_setup = ProjectSetup::new("test-project".to_string(), ripress_only).await;
+    let ripress_setup = ProjectSetup::new("test-project".to_string(), ripress_only, None).await;
     let ripress_template = ripress_setup.determine_template();
     assert!(ripress_template.is_some());
     assert_eq!(ripress_template.unwrap().name, "Ripress Basic");
@@ -216,7 +216,7 @@ async fn test_case_insensitive_component_matching() {
     ];
 
     for components in test_cases {
-        let setup = ProjectSetup::new("test-project".to_string(), components).await;
+        let setup = ProjectSetup::new("test-project".to_string(), components, None).await;
         let template = setup.determine_template();
         assert!(
             template.is_some(),
