@@ -2,6 +2,7 @@ use anyhow::{Context, Result};
 use indicatif::{ProgressBar, ProgressStyle};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+use std::fs;
 use std::path::PathBuf;
 use tokio::process::Command;
 
@@ -89,6 +90,7 @@ impl ProjectSetup {
 
     pub async fn load_templates() -> HashMap<String, ProjectTemplate> {
         HashMap::from([
+            // Basic templates (no frontend)
             (
                 "ripress".to_string(),
                 ProjectTemplate {
@@ -110,6 +112,28 @@ impl ProjectSetup {
                     github_url: "https://github.com/Guru901/ripress-wynd".to_string(),
                 },
             ),
+            // React frontend templates
+            (
+                "ripress-react".to_string(),
+                ProjectTemplate {
+                    name: "Ripress + React".to_string(),
+                    github_url: "https://github.com/Guru901/ripress-react".to_string(),
+                },
+            ),
+            (
+                "wynd-react".to_string(),
+                ProjectTemplate {
+                    name: "Wynd + React".to_string(),
+                    github_url: "https://github.com/Guru901/wynd-react".to_string(),
+                },
+            ),
+            (
+                "ripress-wynd-react".to_string(),
+                ProjectTemplate {
+                    name: "Ripress + Wynd + React".to_string(),
+                    github_url: "https://github.com/Guru901/ripress-wynd-react".to_string(),
+                },
+            ),
         ])
     }
 
@@ -120,12 +144,26 @@ impl ProjectSetup {
             .map(|s| s.as_str())
             .collect();
 
-        // Priority order for template selection
-        let template_priorities = [
-            ("ripress_wynd", vec!["ripress", "wynd"]),
-            ("ripress", vec!["ripress"]),
-            ("wynd", vec!["wynd"]),
-        ];
+        // Determine if we have React frontend
+        let has_react = self
+            .selected_frontend
+            .as_ref()
+            .map_or(false, |f| f == "react");
+
+        // Priority order for template selection (considering frontend)
+        let template_priorities = if has_react {
+            [
+                ("ripress-wynd-react", vec!["ripress", "wynd"]),
+                ("ripress-react", vec!["ripress"]),
+                ("wynd-react", vec!["wynd"]),
+            ]
+        } else {
+            [
+                ("ripress_wynd", vec!["ripress", "wynd"]),
+                ("ripress", vec!["ripress"]),
+                ("wynd", vec!["wynd"]),
+            ]
+        };
 
         for (template_key, required_components) in &template_priorities {
             if required_components
@@ -152,28 +190,38 @@ impl ProjectSetup {
     }
 
     pub async fn build(self) -> Result<()> {
+        // Validate project name and check for existing directory
+        self.validate_project_name()?;
+        self.check_directory_conflict()?;
+
         let total_steps = self.calculate_total_steps();
-        let pb = self.create_progress_bar(total_steps);
+        let pb = self.create_progress_bar(total_steps)?;
 
         // Step 3: Generate main.rs from template
         if let Some(template) = self.determine_template() {
             pb.set_message(format!("📝 Generating main.rs from {}...", template.name));
 
-            let status = Command::new("git")
+            let output = Command::new("git")
                 .arg("clone")
                 .arg(template.github_url.as_str())
                 .arg(self.name.as_str())
-                .status()
+                .output()
                 .await
-                .unwrap();
+                .context("Failed to execute git clone command")?;
 
-            if !status.success() {
-                anyhow::bail!("Failed to clone template: {}", template.name);
+            if !output.status.success() {
+                let stderr = String::from_utf8_lossy(&output.stderr);
+                anyhow::bail!(
+                    "Failed to clone template '{}': {}\n\nThis could be due to:\n- Network connectivity issues\n- Invalid template URL\n- Directory already exists\n- Git not installed\n\nTry running: git clone {} {}",
+                    template.name,
+                    stderr.trim(),
+                    template.github_url,
+                    self.name
+                );
             }
 
-            Command::new("cd").arg(&self.name);
-            Command::new("rm -rf .git");
-            Command::new("git init");
+            // Clean up git history and reinitialize
+            self.cleanup_and_reinit_git().await?;
 
             pb.inc(1);
         } else {
@@ -194,15 +242,15 @@ impl ProjectSetup {
         1 // common dependencies
     }
 
-    fn create_progress_bar(&self, total_steps: u64) -> ProgressBar {
+    fn create_progress_bar(&self, total_steps: u64) -> Result<ProgressBar> {
         let pb = ProgressBar::new(total_steps);
         pb.set_style(
             ProgressStyle::default_bar()
                 .template("{spinner:.green} [{elapsed_precise}] {bar:40.cyan/blue} {pos:>7}/{len:7} {msg}")
-                .unwrap()
+                .context("Failed to create progress bar template")?
                 .progress_chars("#>-"),
         );
-        pb
+        Ok(pb)
     }
 
     async fn create_cargo_project(&self) -> Result<()> {
@@ -236,8 +284,93 @@ impl ProjectSetup {
             }
         }
 
+        if let Some(frontend) = &self.selected_frontend {
+            println!("\nFrontend: {}", frontend);
+        }
+
         if let Some(template) = self.determine_template() {
             println!("\nTemplate used: {}", template.name);
         }
+    }
+
+    /// Validates the project name for common issues
+    pub fn validate_project_name(&self) -> Result<()> {
+        if self.name.is_empty() {
+            anyhow::bail!("Project name cannot be empty");
+        }
+
+        if self.name.len() > 50 {
+            anyhow::bail!("Project name is too long (max 50 characters)");
+        }
+
+        // Check for invalid characters that could cause issues
+        let invalid_chars = ['/', '\\', ':', '*', '?', '"', '<', '>', '|'];
+        if self.name.chars().any(|c| invalid_chars.contains(&c)) {
+            anyhow::bail!(
+                "Project name contains invalid characters: {:?}\nValid characters: letters, numbers, hyphens, underscores, and dots",
+                invalid_chars
+            );
+        }
+
+        // Check if name starts with a number or special character
+        if let Some(first_char) = self.name.chars().next() {
+            if !first_char.is_alphabetic() && first_char != '_' {
+                anyhow::bail!(
+                    "Project name must start with a letter or underscore, not '{}'",
+                    first_char
+                );
+            }
+        }
+
+        Ok(())
+    }
+
+    /// Checks if a directory with the same name already exists
+    pub fn check_directory_conflict(&self) -> Result<()> {
+        let project_path = PathBuf::from(&self.name);
+
+        if project_path.exists() {
+            if project_path.is_dir() {
+                anyhow::bail!(
+                    "Directory '{}' already exists!\n\nTo resolve this conflict, you can:\n1. Choose a different project name\n2. Remove the existing directory: rm -rf {}\n3. Use a different location for your project",
+                    self.name,
+                    self.name
+                );
+            } else {
+                anyhow::bail!(
+                    "A file named '{}' already exists in the current directory.\nPlease choose a different project name or remove the existing file.",
+                    self.name
+                );
+            }
+        }
+
+        Ok(())
+    }
+
+    /// Cleans up git history and reinitializes the repository
+    async fn cleanup_and_reinit_git(&self) -> Result<()> {
+        let project_path = PathBuf::from(&self.name);
+
+        // Remove .git directory
+        let git_dir = project_path.join(".git");
+        if git_dir.exists() {
+            fs::remove_dir_all(&git_dir)
+                .context("Failed to remove .git directory from cloned template")?;
+        }
+
+        // Initialize new git repository
+        let output = Command::new("git")
+            .arg("init")
+            .current_dir(&project_path)
+            .output()
+            .await
+            .context("Failed to execute git init")?;
+
+        if !output.status.success() {
+            let stderr = String::from_utf8_lossy(&output.stderr);
+            anyhow::bail!("Failed to initialize git repository: {}", stderr.trim());
+        }
+
+        Ok(())
     }
 }

@@ -99,19 +99,53 @@ async fn test_template_loading() {
     assert!(templates.contains_key("ripress"));
     let ripress_template = templates.get("ripress").unwrap();
     assert_eq!(ripress_template.name, "Ripress Basic");
-    assert_eq!(ripress_template.dependencies, vec!["ripress"]);
+    assert_eq!(
+        ripress_template.github_url,
+        "https://github.com/Guru901/ripress-only"
+    );
 
     // Test wynd template
     assert!(templates.contains_key("wynd"));
     let wynd_template = templates.get("wynd").unwrap();
     assert_eq!(wynd_template.name, "Wynd Basic");
-    assert_eq!(wynd_template.dependencies, vec!["wynd"]);
+    assert_eq!(
+        wynd_template.github_url,
+        "https://github.com/Guru901/wynd-only"
+    );
 
     // Test combined template
     assert!(templates.contains_key("ripress_wynd"));
     let combined_template = templates.get("ripress_wynd").unwrap();
     assert_eq!(combined_template.name, "Ripress + Wynd");
-    assert_eq!(combined_template.dependencies, vec!["ripress", "wynd"]);
+    assert_eq!(
+        combined_template.github_url,
+        "https://github.com/Guru901/ripress-wynd"
+    );
+
+    // Test React templates
+    assert!(templates.contains_key("ripress-react"));
+    let ripress_react_template = templates.get("ripress-react").unwrap();
+    assert_eq!(ripress_react_template.name, "Ripress + React");
+    assert_eq!(
+        ripress_react_template.github_url,
+        "https://github.com/Guru901/ripress-react"
+    );
+
+    assert!(templates.contains_key("wynd-react"));
+    let wynd_react_template = templates.get("wynd-react").unwrap();
+    assert_eq!(wynd_react_template.name, "Wynd + React");
+    assert_eq!(
+        wynd_react_template.github_url,
+        "https://github.com/Guru901/wynd-react"
+    );
+
+    assert!(templates.contains_key("ripress-wynd-react"));
+    let combined_react_template = templates.get("ripress-wynd-react").unwrap();
+    assert_eq!(combined_react_template.name, "Ripress + Wynd + React");
+    assert_eq!(
+        combined_react_template.github_url,
+        "https://github.com/Guru901/ripress-wynd-react"
+    );
 }
 
 #[tokio::test]
@@ -225,4 +259,87 @@ async fn test_case_insensitive_component_matching() {
         );
         assert_eq!(template.unwrap().name, "Ripress + Wynd");
     }
+}
+
+#[tokio::test]
+async fn test_directory_conflict_detection() {
+    use std::env;
+    use std::fs;
+    use tempfile::TempDir;
+
+    let temp_dir = TempDir::new().unwrap();
+    let original_dir = env::current_dir().unwrap();
+    env::set_current_dir(&temp_dir).unwrap();
+
+    // Create a test directory
+    let test_dir = "existing-project";
+    fs::create_dir(test_dir).unwrap();
+
+    let setup = ProjectSetup::new(test_dir.to_string(), vec![], None).await;
+    assert!(
+        setup.check_directory_conflict().is_err(),
+        "Should detect directory conflict"
+    );
+
+    // Clean up
+    fs::remove_dir(test_dir).unwrap();
+    env::set_current_dir(original_dir).unwrap();
+}
+
+#[tokio::test]
+async fn test_template_selection_with_react_frontend() {
+    // Test template selection with React frontend
+    let components = vec!["ripress".to_string(), "wynd".to_string()];
+    let setup = ProjectSetup::new(
+        "test-project".to_string(),
+        components,
+        Some("react".to_string()),
+    )
+    .await;
+
+    let template = setup.determine_template();
+    assert!(template.is_some());
+    assert_eq!(template.unwrap().name, "Ripress + Wynd + React");
+
+    // Test with only ripress and React
+    let ripress_only = vec!["ripress".to_string()];
+    let ripress_setup = ProjectSetup::new(
+        "test-project".to_string(),
+        ripress_only,
+        Some("react".to_string()),
+    )
+    .await;
+    let ripress_template = ripress_setup.determine_template();
+    assert!(ripress_template.is_some());
+    assert_eq!(ripress_template.unwrap().name, "Ripress + React");
+
+    // Test with only wynd and React
+    let wynd_only = vec!["wynd".to_string()];
+    let wynd_setup = ProjectSetup::new(
+        "test-project".to_string(),
+        wynd_only,
+        Some("react".to_string()),
+    )
+    .await;
+    let wynd_template = wynd_setup.determine_template();
+    assert!(wynd_template.is_some());
+    assert_eq!(wynd_template.unwrap().name, "Wynd + React");
+}
+
+#[tokio::test]
+async fn test_template_selection_without_frontend() {
+    // Test template selection without frontend (should use basic templates)
+    let components = vec!["ripress".to_string(), "wynd".to_string()];
+    let setup = ProjectSetup::new("test-project".to_string(), components, None).await;
+
+    let template = setup.determine_template();
+    assert!(template.is_some());
+    assert_eq!(template.unwrap().name, "Ripress + Wynd");
+
+    // Test with only ripress and no frontend
+    let ripress_only = vec!["ripress".to_string()];
+    let ripress_setup = ProjectSetup::new("test-project".to_string(), ripress_only, None).await;
+    let ripress_template = ripress_setup.determine_template();
+    assert!(ripress_template.is_some());
+    assert_eq!(ripress_template.unwrap().name, "Ripress Basic");
 }
