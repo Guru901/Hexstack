@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.3.0] - 2025-09-07
+
+Now u can generate apps with react frontend
+
 ## [0.2.3] - 2025-09-07
 
 Fixed wrong repo url in Cargo.toml

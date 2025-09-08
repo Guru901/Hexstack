@@ -1,6 +1,6 @@
 [package]
 name = "hexstack"
-version = "0.2.3"
+version = "0.3.0"
 edition = "2024"
 description = "Hex Stack - A simple stack to create modern backend applications that are fast and have the best in class developer experience."
 license = "MIT"
