@@ -4,23 +4,29 @@ async fn main() {
 
     if args.len() == 1 {
         eprintln!("Incorrect usage");
-        eprintln!("Usage: hexstack new");
+        eprintln!("Usage: hexstack new [project-name] [--template <template>]");
+        eprintln!("\nExamples:");
+        eprintln!("  hexstack new my-app");
+        eprintln!("  hexstack new my-app --template full");
+        eprintln!("  hexstack new my-app --template ripress");
         return;
     }
 
     let command = &args[1];
 
-    match command.as_str() {
-        "new" => {
-            let (name, templates) = hexstack::parse_new_args(&args[2..]);
-            hexstack::create_project(name, templates).await
-        }
-        _ => {
-            eprintln!("Unknown command: {}", command);
-            Err(anyhow::anyhow!("Unknown command"))
-        }
-    }
-    .unwrap_or_else(|err| {
+    let result = match command.as_str() {
+        "new" => match hexstack::parse_new_args(&args[2..]) {
+            Ok((name, templates)) => hexstack::create_project(name, templates).await,
+            Err(e) => Err(e),
+        },
+        _ => Err(anyhow::anyhow!(
+            "Unknown command: {}\n\nAvailable commands:\n  new    Create a new project",
+            command
+        )),
+    };
+
+    if let Err(err) = result {
         eprintln!("Error: {}", err);
-    });
+        std::process::exit(1);
+    }
 }
