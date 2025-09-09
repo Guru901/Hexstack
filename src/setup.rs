@@ -228,6 +228,11 @@ impl ProjectSetup {
             pb.inc(1);
         }
 
+        Command::new("cd").arg(self.name.as_str()).output().await?;
+        Command::new("cargo").arg("update").output().await?;
+
+        Command::new("cd").arg("..").output().await?;
+
         pb.finish_with_message("✅ Project setup complete!");
 
         self.print_next_steps();
