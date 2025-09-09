@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.3.2] - 2025-09-09
+
+Template deps are updated after its created
+
 ## [0.3.1] - 2025-09-09
 
 Removed unused deps
