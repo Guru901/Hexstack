@@ -228,11 +228,24 @@ impl ProjectSetup {
             pb.inc(1);
         }
 
-        Command::new("cd").arg(self.name.as_str()).output().await?;
-        Command::new("cargo").arg("update").output().await?;
-
-        Command::new("cd").arg("..").output().await?;
-
+        // Update Cargo dependencies inside the newly created project directory
+        pb.set_message("🔄 Updating Cargo dependencies...");
+        let project_path = PathBuf::from(&self.name);
+        let output = Command::new("cargo")
+            .arg("update")
+            .current_dir(&project_path)
+            .output()
+            .await
+            .context("Failed to execute cargo update")?;
+        if !output.status.success() {
+            let stderr = String::from_utf8_lossy(&output.stderr);
+            anyhow::bail!(
+                "Failed to run 'cargo update' in '{}': {}",
+                project_path.display(),
+                stderr.trim()
+            );
+        }
+        pb.inc(1);
         pb.finish_with_message("✅ Project setup complete!");
 
         self.print_next_steps();
