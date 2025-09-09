@@ -1,6 +1,6 @@
 [package]
 name = "hexstack"
-version = "0.3.0"
+version = "0.3.1"
 edition = "2024"
 description = "Hex Stack - A simple stack to create modern backend applications that are fast and have the best in class developer experience."
 license = "MIT"
@@ -19,10 +19,7 @@ anyhow = "1.0.99"
 console = "0.16.0"
 dialoguer = "0.12.0"
 indicatif = "0.18.0"
-ripress = { version = "1.8.4" , features = ["with-wynd"] }
-serde = { version = "1.0.219", features = ["derive"] }
 tokio = { version = "1.47.1", features = ["macros", "rt-multi-thread", "fs", "process"] }
-wynd = { version = "0.4.3" , features = ["with-ripress"] }
 
 [dev-dependencies]
 tempfile = "3.8.1"

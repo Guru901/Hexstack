@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.3.1] - 2025-09-09
+
+Removed unused deps
+
 ## [0.3.0] - 2025-09-07
 
 Now u can generate apps with react frontend

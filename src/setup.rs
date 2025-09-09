@@ -1,12 +1,11 @@
 use anyhow::{Context, Result};
 use indicatif::{ProgressBar, ProgressStyle};
-use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::fs;
 use std::path::PathBuf;
 use tokio::process::Command;
 
-#[derive(Debug, Clone, Deserialize, Serialize)]
+#[derive(Debug, Clone)]
 pub struct ComponentConfig {
     pub dependencies: Vec<Dependency>,
     pub dev_dependencies: Option<Vec<Dependency>>,
@@ -14,14 +13,14 @@ pub struct ComponentConfig {
     pub description: String,
 }
 
-#[derive(Debug, Clone, Deserialize, Serialize)]
+#[derive(Debug, Clone)]
 pub struct Dependency {
     pub name: String,
     pub features: Option<Vec<String>>,
     pub version: Option<String>,
 }
 
-#[derive(Debug, Clone, Deserialize, Serialize)]
+#[derive(Debug, Clone)]
 pub struct ProjectTemplate {
     pub name: String,
     pub github_url: String,
