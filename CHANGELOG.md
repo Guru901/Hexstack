@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.3.2] - 2025-09-10
+
+Reduced bundle size
+
 ## [0.3.2] - 2025-09-09
 
 Template deps are updated after its created
