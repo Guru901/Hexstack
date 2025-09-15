@@ -1,25 +1,29 @@
 # Changelog
 
-## [0.3.2] - 2025-09-10
+## [0.3.3] - 2025-09-15
 
-Reduced bundle size
+- Added svelte as a frontend option
+
+## [0.3.3] - 2025-09-10
+
+- Reduced bundle size
 
 ## [0.3.2] - 2025-09-09
 
-Template deps are updated after its created
+- Template deps are updated after its created
 
 ## [0.3.1] - 2025-09-09
 
-Removed unused deps
+- Removed unused deps
 
 ## [0.3.0] - 2025-09-07
 
-Now u can generate apps with react frontend
+- Now u can generate apps with react frontend
 
 ## [0.2.3] - 2025-09-07
 
-Fixed wrong repo url in Cargo.toml
-Improved error logging
+- Fixed wrong repo url in Cargo.toml
+- Improved error logging
 
 ## [0.2.2] - 2025-09-05
 
