@@ -133,6 +133,28 @@ impl ProjectSetup {
                     github_url: "https://github.com/Guru901/ripress-wynd-react".to_string(),
                 },
             ),
+            // Svelte frontend templates
+            (
+                "ripress-svelte".to_string(),
+                ProjectTemplate {
+                    name: "Ripress + Svelte".to_string(),
+                    github_url: "https://github.com/Guru901/ripress-svelte".to_string(),
+                },
+            ),
+            (
+                "wynd-svelte".to_string(),
+                ProjectTemplate {
+                    name: "Wynd + Svelte".to_string(),
+                    github_url: "https://github.com/Guru901/wynd-svelte".to_string(),
+                },
+            ),
+            (
+                "ripress-wynd-svelte".to_string(),
+                ProjectTemplate {
+                    name: "Ripress + Wynd + Svelte".to_string(),
+                    github_url: "https://github.com/Guru901/ripress-wynd-svelte".to_string(),
+                },
+            ),
         ])
     }
 
@@ -144,17 +166,28 @@ impl ProjectSetup {
             .collect();
 
         // Determine if we have React frontend
-        let has_react = self
+        let has_react_frontend = self
             .selected_frontend
             .as_ref()
             .map_or(false, |f| f == "react");
 
+        let has_svelte_frontend = self
+            .selected_frontend
+            .as_ref()
+            .map_or(false, |f| f == "svelte");
+
         // Priority order for template selection (considering frontend)
-        let template_priorities = if has_react {
+        let template_priorities = if has_react_frontend {
             [
                 ("ripress-wynd-react", vec!["ripress", "wynd"]),
                 ("ripress-react", vec!["ripress"]),
                 ("wynd-react", vec!["wynd"]),
+            ]
+        } else if has_svelte_frontend {
+            [
+                ("ripress-wynd-svelte", vec!["ripress", "wynd"]),
+                ("ripress-svelte", vec!["ripress"]),
+                ("wynd-svelte", vec!["wynd"]),
             ]
         } else {
             [
@@ -231,12 +264,22 @@ impl ProjectSetup {
         // Update Cargo dependencies inside the newly created project directory
         pb.set_message("🔄 Updating Cargo dependencies...");
         let project_path = PathBuf::from(&self.name);
+
+        // Check if "backend" directory exists inside the project directory
+        let backend_path = project_path.join("backend");
+        let cargo_update_dir = if backend_path.is_dir() {
+            &backend_path
+        } else {
+            &project_path
+        };
+
         let output = Command::new("cargo")
             .arg("update")
-            .current_dir(&project_path)
+            .current_dir(cargo_update_dir)
             .output()
             .await
             .context("Failed to execute cargo update")?;
+
         if !output.status.success() {
             let stderr = String::from_utf8_lossy(&output.stderr);
             anyhow::bail!(
