@@ -71,26 +71,6 @@ async fn test_template_selection_no_match() {
 }
 
 #[tokio::test]
-async fn test_component_config_loading() {
-    // Test that component configuration is loaded correctly
-    let config = ProjectSetup::load_component_config();
-
-    // Test Ripress config
-    assert!(config.contains_key("ripress"));
-    let ripress_config = config.get("ripress").unwrap();
-    assert_eq!(ripress_config.dependencies.len(), 1);
-    assert_eq!(ripress_config.dependencies[0].name, "ripress");
-    assert_eq!(ripress_config.template_file, Some("ripress".to_string()));
-
-    // Test Wynd config
-    assert!(config.contains_key("wynd"));
-    let wynd_config = config.get("wynd").unwrap();
-    assert_eq!(wynd_config.dependencies.len(), 1);
-    assert_eq!(wynd_config.dependencies[0].name, "wynd");
-    assert_eq!(wynd_config.template_file, Some("wynd".to_string()));
-}
-
-#[tokio::test]
 async fn test_template_loading() {
     // Test that templates are loaded correctly
     let templates = ProjectSetup::load_templates().await;

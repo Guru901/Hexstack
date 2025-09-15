@@ -7,17 +7,7 @@ use tokio::process::Command;
 
 #[derive(Debug, Clone)]
 pub struct ComponentConfig {
-    pub dependencies: Vec<Dependency>,
-    pub dev_dependencies: Option<Vec<Dependency>>,
-    pub template_file: Option<String>,
     pub description: String,
-}
-
-#[derive(Debug, Clone)]
-pub struct Dependency {
-    pub name: String,
-    pub features: Option<Vec<String>>,
-    pub version: Option<String>,
 }
 
 #[derive(Debug, Clone)]
@@ -60,13 +50,6 @@ impl ProjectSetup {
             (
                 "ripress".to_string(),
                 ComponentConfig {
-                    dependencies: vec![Dependency {
-                        name: "ripress".to_string(),
-                        features: None,
-                        version: None,
-                    }],
-                    dev_dependencies: None,
-                    template_file: Some("ripress".to_string()),
                     description: "An HTTP Framework with best in class developer experience"
                         .to_string(),
                 },
@@ -74,13 +57,6 @@ impl ProjectSetup {
             (
                 "wynd".to_string(),
                 ComponentConfig {
-                    dependencies: vec![Dependency {
-                        name: "wynd".to_string(),
-                        features: None,
-                        version: None,
-                    }],
-                    dev_dependencies: None,
-                    template_file: Some("wynd".to_string()),
                     description: "An Event Driven WebSocket library".to_string(),
                 },
             ),
