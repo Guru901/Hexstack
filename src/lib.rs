@@ -136,7 +136,7 @@ pub async fn create_project(
         }
     };
 
-    let frontend_options = vec!["react", "none"];
+    let frontend_options = vec!["react", "svelte", "none"];
 
     let selection = Select::with_theme(&theme)
         .with_prompt("Select the frontend you want")
@@ -153,6 +153,7 @@ pub async fn create_project(
 
     let selected_frontend = match selected_frontend {
         "react" => Some(String::from("react")),
+        "svelte" => Some(String::from("svelte")),
         "none" => None,
         _ => {
             eprintln!("Error: Invalid frontend");
