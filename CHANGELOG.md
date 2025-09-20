@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.4.2] - 2025-09-20
+
+- Testing the auto update feature
+
 ## [0.4.1] - 2025-09-20
 
 - Added self update feature
