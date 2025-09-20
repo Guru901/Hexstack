@@ -209,7 +209,19 @@ pub async fn update_if_needed() -> Result<()> {
 }
 
 async fn get_latest_version() -> Result<String> {
-    let response = reqwest::get("https://crates.io/api/v1/crates/hexstack")
+    let client = reqwest::Client::builder()
+        .timeout(std::time::Duration::from_secs(3))
+        .user_agent(format!(
+            "hexstack/{} (+https://github.com/guru901/hexstack)",
+            env!("CARGO_PKG_VERSION")
+        ))
+        .build()
+        .map_err(|e| anyhow::anyhow!("Failed to build HTTP client: {}", e))?;
+
+    let response = client
+        .get("https://crates.io/api/v1/crates/hexstack")
+        .header(reqwest::header::ACCEPT, "application/json")
+        .send()
         .await
         .map_err(|e| anyhow::anyhow!("Failed to fetch crate info: {}", e))?;
 
@@ -227,7 +239,11 @@ async fn get_latest_version() -> Result<String> {
 
     let latest_version = json
         .get("crate")
-        .and_then(|c| c.get("newest_version"))
+        .and_then(|c| {
+            c.get("max_stable_version")
+                .or_else(|| c.get("max_version"))
+                .or_else(|| c.get("newest_version"))
+        })
         .and_then(|v| v.as_str())
         .ok_or_else(|| anyhow::anyhow!("Invalid API response format"))?;
 
