@@ -24,6 +24,10 @@ async fn main() {
             Ok((name, templates)) => hexstack::create_project(name, templates).await,
             Err(e) => Err(e),
         },
+        "--version" => {
+            println!("{} {}", env!("CARGO_PKG_NAME"), env!("CARGO_PKG_VERSION"));
+            Ok(())
+        }
         _ => Err(anyhow::anyhow!(
             "Unknown command: {}\n\nAvailable commands:\n  new    Create a new project",
             command
