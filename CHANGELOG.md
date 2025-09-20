@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.4.3] - 2025-09-20
+
+- Fixed bug in auto update feature
+
 ## [0.4.2] - 2025-09-20
 
 - Testing the auto update feature

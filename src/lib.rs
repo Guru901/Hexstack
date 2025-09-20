@@ -208,8 +208,7 @@ pub async fn update_if_needed() -> Result<()> {
         println!("Updated hexstack to the latest version!");
         println!("Please restart hexstack to use the new version.");
 
-        // Instead of running the old binary, suggest restart
-        // or use std::process::exit(0) to terminate current process
+        std::process::exit(0);
     }
     Ok(())
 }
