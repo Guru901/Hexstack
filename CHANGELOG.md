@@ -2,6 +2,10 @@
 
 ## [0.4.3] - 2025-09-20
 
+- Added version command to check the version of the bin
+
+## [0.4.3] - 2025-09-20
+
 - Fixed bug in auto update feature
 
 ## [0.4.2] - 2025-09-20
