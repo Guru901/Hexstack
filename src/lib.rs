@@ -185,7 +185,7 @@ pub async fn update_if_needed() -> Result<()> {
     // Update only if the remote version is strictly greater than the current one.
     let current = semver::Version::parse(version)
         .map_err(|e| anyhow::anyhow!("Invalid current version '{}': {}", version, e))?;
-    let latest = semver::Version::parse(&latest_version)
+    let latest: semver::Version = semver::Version::parse(&latest_version)
         .map_err(|e| anyhow::anyhow!("Invalid latest version '{}': {}", latest_version, e))?;
 
     if latest > current {
