@@ -1,6 +1,10 @@
 # Changelog
 
-## [0.3.3] - 2025-09-15
+## [0.4.1] - 2025-09-20
+
+- Added self update feature
+
+## [0.4.0] - 2025-09-15
 
 - Added svelte as a frontend option
 
