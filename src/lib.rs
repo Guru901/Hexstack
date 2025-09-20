@@ -2,6 +2,8 @@ mod setup;
 
 use console::Style;
 use dialoguer::{Input, MultiSelect, Select, theme::ColorfulTheme};
+use serde_json::Value;
+use tokio::process::Command as AsyncCommand;
 
 use crate::setup::ProjectSetup;
 use anyhow::Result;
@@ -174,4 +176,82 @@ fn capitalize(word: &str) -> String {
         None => String::new(),
         Some(first) => first.to_uppercase().collect::<String>() + chars.as_str(),
     }
+}
+
+pub async fn update_if_needed() -> Result<()> {
+    let version = env!("CARGO_PKG_VERSION");
+    let latest_version = get_latest_version().await?;
+
+    // Update only if the remote version is strictly greater than the current one.
+    let current = semver::Version::parse(version)
+        .map_err(|e| anyhow::anyhow!("Invalid current version '{}': {}", version, e))?;
+    let latest = semver::Version::parse(&latest_version)
+        .map_err(|e| anyhow::anyhow!("Invalid latest version '{}': {}", latest_version, e))?;
+
+    if latest > current {
+        println!(
+            "A new version of hexstack is available ({} → {})",
+            version, latest_version
+        );
+        println!("Updating...");
+
+        let output = AsyncCommand::new("cargo")
+            .args(["install", "hexstack", "--force", "--locked"])
+            .output()
+            .await?;
+
+        if !output.status.success() {
+            let error = String::from_utf8_lossy(&output.stderr);
+            return Err(anyhow::anyhow!("Failed to update: {}", error));
+        }
+
+        println!("Updated hexstack to the latest version!");
+        println!("Please restart hexstack to use the new version.");
+
+        // Instead of running the old binary, suggest restart
+        // or use std::process::exit(0) to terminate current process
+    }
+    Ok(())
+}
+
+async fn get_latest_version() -> Result<String> {
+    let client = reqwest::Client::builder()
+        .timeout(std::time::Duration::from_secs(3))
+        .user_agent(format!(
+            "hexstack/{} (+https://github.com/guru901/hexstack)",
+            env!("CARGO_PKG_VERSION")
+        ))
+        .build()
+        .map_err(|e| anyhow::anyhow!("Failed to build HTTP client: {}", e))?;
+
+    let response = client
+        .get("https://crates.io/api/v1/crates/hexstack")
+        .header(reqwest::header::ACCEPT, "application/json")
+        .send()
+        .await
+        .map_err(|e| anyhow::anyhow!("Failed to fetch crate info: {}", e))?;
+
+    if !response.status().is_success() {
+        return Err(anyhow::anyhow!(
+            "API request failed with status: {}",
+            response.status()
+        ));
+    }
+
+    let json: Value = response
+        .json()
+        .await
+        .map_err(|e| anyhow::anyhow!("Failed to parse JSON response: {}", e))?;
+
+    let latest_version = json
+        .get("crate")
+        .and_then(|c| {
+            c.get("max_stable_version")
+                .or_else(|| c.get("max_version"))
+                .or_else(|| c.get("newest_version"))
+        })
+        .and_then(|v| v.as_str())
+        .ok_or_else(|| anyhow::anyhow!("Invalid API response format"))?;
+
+    Ok(latest_version.to_string())
 }
