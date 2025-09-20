@@ -14,6 +14,12 @@ async fn main() {
 
     let command = &args[1];
 
+    if let Err(e) = hexstack::update_if_needed().await {
+        println!("Auto Update failed: {}", e);
+        println!("Please run `cargo install hexstack` to install the latest version");
+        std::process::exit(1);
+    }
+
     let result = match command.as_str() {
         "new" => match hexstack::parse_new_args(&args[2..]) {
             Ok((name, templates)) => hexstack::create_project(name, templates).await,
