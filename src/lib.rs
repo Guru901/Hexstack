@@ -182,7 +182,13 @@ pub async fn update_if_needed() -> Result<()> {
     let version = env!("CARGO_PKG_VERSION");
     let latest_version = get_latest_version().await?;
 
-    if latest_version != version {
+    // Update only if the remote version is strictly greater than the current one.
+    let current = semver::Version::parse(version)
+        .map_err(|e| anyhow::anyhow!("Invalid current version '{}': {}", version, e))?;
+    let latest = semver::Version::parse(&latest_version)
+        .map_err(|e| anyhow::anyhow!("Invalid latest version '{}': {}", latest_version, e))?;
+
+    if latest > current {
         println!(
             "A new version of hexstack is available ({} → {})",
             version, latest_version
@@ -190,7 +196,7 @@ pub async fn update_if_needed() -> Result<()> {
         println!("Updating...");
 
         let output = AsyncCommand::new("cargo")
-            .args(&["install", "hexstack"])
+            .args(["install", "hexstack", "--force", "--locked"])
             .output()
             .await?;
 
