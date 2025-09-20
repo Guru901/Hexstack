@@ -15,9 +15,8 @@ async fn main() {
     let command = &args[1];
 
     if let Err(e) = hexstack::update_if_needed().await {
-        println!("Auto Update failed: {}", e);
-        println!("Please run `cargo install hexstack` to install the latest version");
-        std::process::exit(1);
+        eprintln!("Auto-update check failed: {e}");
+        eprintln!("Continuing without updating. To update manually, run: cargo install hexstack");
     }
 
     let result = match command.as_str() {
