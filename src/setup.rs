@@ -60,6 +60,13 @@ impl ProjectSetup {
                     description: "An Event Driven WebSocket library".to_string(),
                 },
             ),
+            (
+                "lume".to_string(),
+                ComponentConfig {
+                    description: "A simple and intuitive Query Builder inspired by Drizzle"
+                        .to_string(),
+                },
+            ),
         ])
     }
 
@@ -81,10 +88,38 @@ impl ProjectSetup {
                 },
             ),
             (
+                "lume".to_string(),
+                ProjectTemplate {
+                    name: "Lume Basic".to_string(),
+                    github_url: "https://github.com/Guru901/lume-only".to_string(),
+                },
+            ),
+            (
                 "ripress_wynd".to_string(),
                 ProjectTemplate {
                     name: "Ripress + Wynd".to_string(),
                     github_url: "https://github.com/Guru901/ripress-wynd".to_string(),
+                },
+            ),
+            (
+                "ripress_lume".to_string(),
+                ProjectTemplate {
+                    name: "Ripress + Lume".to_string(),
+                    github_url: "https://github.com/Guru901/ripress-lume".to_string(),
+                },
+            ),
+            (
+                "wynd_lume".to_string(),
+                ProjectTemplate {
+                    name: "Wynd + Lume".to_string(),
+                    github_url: "https://github.com/Guru901/wynd-lume".to_string(),
+                },
+            ),
+            (
+                "ripress_wynd_lume".to_string(),
+                ProjectTemplate {
+                    name: "Ripress + Wynd + Lume".to_string(),
+                    github_url: "https://github.com/Guru901/ripress-wynd-lume".to_string(),
                 },
             ),
             // React frontend templates
@@ -109,6 +144,27 @@ impl ProjectSetup {
                     github_url: "https://github.com/Guru901/ripress-wynd-react".to_string(),
                 },
             ),
+            (
+                "ripress-lume-react".to_string(),
+                ProjectTemplate {
+                    name: "Ripress + Lume + React".to_string(),
+                    github_url: "https://github.com/Guru901/ripress-lume-react".to_string(),
+                },
+            ),
+            (
+                "wynd-lume-react".to_string(),
+                ProjectTemplate {
+                    name: "Wynd + Lume + React".to_string(),
+                    github_url: "https://github.com/Guru901/wynd-lume-react".to_string(),
+                },
+            ),
+            (
+                "ripress-wynd-lume-react".to_string(),
+                ProjectTemplate {
+                    name: "Ripress + Wynd + Lume + React".to_string(),
+                    github_url: "https://github.com/Guru901/ripress-wynd-lume-react".to_string(),
+                },
+            ),
             // Svelte frontend templates
             (
                 "ripress-svelte".to_string(),
@@ -129,6 +185,27 @@ impl ProjectSetup {
                 ProjectTemplate {
                     name: "Ripress + Wynd + Svelte".to_string(),
                     github_url: "https://github.com/Guru901/ripress-wynd-svelte".to_string(),
+                },
+            ),
+            (
+                "ripress-lume-svelte".to_string(),
+                ProjectTemplate {
+                    name: "Ripress + Lume + Svelte".to_string(),
+                    github_url: "https://github.com/Guru901/ripress-lume-svelte".to_string(),
+                },
+            ),
+            (
+                "wynd-lume-svelte".to_string(),
+                ProjectTemplate {
+                    name: "Wynd + Lume + Svelte".to_string(),
+                    github_url: "https://github.com/Guru901/wynd-lume-svelte".to_string(),
+                },
+            ),
+            (
+                "ripress-wynd-lume-svelte".to_string(),
+                ProjectTemplate {
+                    name: "Ripress + Wynd + Lume + Svelte".to_string(),
+                    github_url: "https://github.com/Guru901/ripress-wynd-lume-svelte".to_string(),
                 },
             ),
         ])
@@ -155,21 +232,33 @@ impl ProjectSetup {
         // Priority order for template selection (considering frontend)
         let template_priorities = if has_react_frontend {
             [
+                ("ripress-wynd-lume-react", vec!["ripress", "wynd", "lume"]),
                 ("ripress-wynd-react", vec!["ripress", "wynd"]),
+                ("ripress-lume-react", vec!["ripress", "lume"]),
+                ("wynd-lume-react", vec!["wynd", "lume"]),
                 ("ripress-react", vec!["ripress"]),
                 ("wynd-react", vec!["wynd"]),
+                ("lume-react", vec!["lume"]),
             ]
         } else if has_svelte_frontend {
             [
+                ("ripress-wynd-lume-svelte", vec!["ripress", "wynd", "lume"]),
                 ("ripress-wynd-svelte", vec!["ripress", "wynd"]),
+                ("ripress-lume-svelte", vec!["ripress", "lume"]),
+                ("wynd-lume-svelte", vec!["wynd", "lume"]),
                 ("ripress-svelte", vec!["ripress"]),
                 ("wynd-svelte", vec!["wynd"]),
+                ("lume-svelte", vec!["lume"]),
             ]
         } else {
             [
+                ("ripress_wynd_lume", vec!["ripress", "wynd", "lume"]),
                 ("ripress_wynd", vec!["ripress", "wynd"]),
+                ("ripress_lume", vec!["ripress", "lume"]),
+                ("wynd_lume", vec!["wynd", "lume"]),
                 ("ripress", vec!["ripress"]),
                 ("wynd", vec!["wynd"]),
+                ("lume", vec!["lume"]),
             ]
         };
 

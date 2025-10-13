@@ -9,6 +9,8 @@ async fn main() {
         eprintln!("  hexstack new my-app");
         eprintln!("  hexstack new my-app --template full");
         eprintln!("  hexstack new my-app --template ripress");
+        eprintln!("  hexstack new my-app --template wynd");
+        eprintln!("  hexstack new my-app --template lume");
         return;
     }
 

@@ -26,13 +26,14 @@ pub fn parse_new_args(args: &[String]) -> Result<(Option<&String>, Option<Vec<St
                         "full" => {
                             templates.push(String::from("ripress"));
                             templates.push(String::from("wynd"));
+                            templates.push(String::from("lume"));
                         }
-                        "ripress" | "wynd" => {
+                        "ripress" | "wynd" | "lume" => {
                             templates.push(template_value);
                         }
                         _ => {
                             errors.push(format!(
-                                "Invalid template value '{}'. Valid values: full, ripress, wynd",
+                                "Invalid template value '{}'. Valid values: full, ripress, wynd, lume",
                                 args[i + 1]
                             ));
                         }
@@ -119,7 +120,7 @@ pub async fn create_project(
 
     println!("📦 Creating project `{}`", project_name);
 
-    let component_options = &["ripress", "wynd"];
+    let component_options = &["ripress", "wynd", "lume"];
 
     let selected_components = match templates {
         Some(templates) => templates,
