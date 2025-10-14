@@ -230,28 +230,26 @@ impl ProjectSetup {
             .map_or(false, |f| f == "svelte");
 
         // Priority order for template selection (considering frontend)
-        let template_priorities = if has_react_frontend {
-            [
+        let template_priorities: Vec<(&str, Vec<&str>)> = if has_react_frontend {
+            vec![
                 ("ripress-wynd-lume-react", vec!["ripress", "wynd", "lume"]),
                 ("ripress-wynd-react", vec!["ripress", "wynd"]),
                 ("ripress-lume-react", vec!["ripress", "lume"]),
                 ("wynd-lume-react", vec!["wynd", "lume"]),
                 ("ripress-react", vec!["ripress"]),
                 ("wynd-react", vec!["wynd"]),
-                ("lume-react", vec!["lume"]),
             ]
         } else if has_svelte_frontend {
-            [
+            vec![
                 ("ripress-wynd-lume-svelte", vec!["ripress", "wynd", "lume"]),
                 ("ripress-wynd-svelte", vec!["ripress", "wynd"]),
                 ("ripress-lume-svelte", vec!["ripress", "lume"]),
                 ("wynd-lume-svelte", vec!["wynd", "lume"]),
                 ("ripress-svelte", vec!["ripress"]),
                 ("wynd-svelte", vec!["wynd"]),
-                ("lume-svelte", vec!["lume"]),
             ]
         } else {
-            [
+            vec![
                 ("ripress_wynd_lume", vec!["ripress", "wynd", "lume"]),
                 ("ripress_wynd", vec!["ripress", "wynd"]),
                 ("ripress_lume", vec!["ripress", "lume"]),
@@ -290,6 +288,9 @@ impl ProjectSetup {
         // Validate project name and check for existing directory
         self.validate_project_name()?;
         self.check_directory_conflict()?;
+
+        // Validate that Lume cannot be used alone with frontends
+        self.validate_lume_frontend_usage()?;
 
         let total_steps = self.calculate_total_steps();
         let pb = self.create_progress_bar(total_steps)?;
@@ -400,6 +401,36 @@ impl ProjectSetup {
         if let Some(template) = self.determine_template() {
             println!("\nTemplate used: {}", template.name);
         }
+    }
+
+    /// Validates that Lume cannot be used alone with frontends
+    /// Lume must be used with at least one other component (Ripress or Wynd) when a frontend is selected
+    pub fn validate_lume_frontend_usage(&self) -> Result<()> {
+        // Check if a frontend is selected
+        if self.selected_frontend.is_some() {
+            // Check if Lume is selected
+            let has_lume = self.selected_components.contains(&"lume".to_string());
+
+            if has_lume {
+                // Check if Lume is used alone (without Ripress or Wynd)
+                let has_ripress = self.selected_components.contains(&"ripress".to_string());
+                let has_wynd = self.selected_components.contains(&"wynd".to_string());
+
+                if !has_ripress && !has_wynd {
+                    anyhow::bail!(
+                        "❌ Lume cannot be used alone with a frontend!\n\n\
+                        Lume is a query builder that requires either Ripress (HTTP framework) or Wynd (WebSocket library) \
+                        to provide the backend infrastructure when using a frontend.\n\n\
+                        Please select at least one of the following components along with Lume:\n\
+                        • Ripress - An HTTP Framework with best in class developer experience\n\
+                        • Wynd - An Event Driven WebSocket library\n\n\
+                        You can use Lume alone without a frontend, or combine it with Ripress/Wynd for full-stack applications."
+                    );
+                }
+            }
+        }
+
+        Ok(())
     }
 
     /// Validates the project name for common issues
