@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.5.0] - 2025-10-14
+
+- Added `Lume` a drizzle inspired query builder as one of the template options
+
 ## [0.4.3] - 2025-09-20
 
 - Added version command to check the version of the bin
