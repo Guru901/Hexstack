@@ -2,39 +2,41 @@
 
 [![Crates.io](https://img.shields.io/crates/v/hexstack)](https://crates.io/crates/hexstack)
 
-### A modern, full-stack web framework for Rust
+### A modern, full-stack framework and CLI for Rust
 
 Please star the repo if you like it, so that I know someone is using it.
 
 ## What is HexStack?
 
-HexStack is a complete, modern web framework for Rust that combines the familiar developer experience of Express.js, WS and Drizzle with the performance and safety of Rust. HexStack brings together three powerful libraries to create a unified full-stack development experience:
+HexStack is two things at once: a **full-stack Rust framework** that combines the familiar developer experience of Express.js, WS, and Drizzle with the performance and safety of Rust, and a **CLI tool** (`hexstack new`) that scaffolds a working project on top of it in seconds.
+
+HexStack brings together three libraries to create a unified full-stack development experience:
 
 - **[Ripress](https://github.com/guru901/ripress)** - Lightning-fast HTTP server (97% of Actix-Web performance)
 - **[Wynd](https://github.com/guru901/wynd)** - Simple, powerful WebSocket server
-- **[Lume](https://github.com/guru901/lume)** - Type-safe ORM with intuitive API _(coming soon)_
+- **[Lume](https://github.com/guru901/lume)** - Type-safe ORM with intuitive API _(experimental — functional but not yet recommended for real projects)_
 
 ## Why Choose HexStack?
 
-**🚀 Unmatched Performance**
+** Unmatched Performance**
 
 - HTTP performance: 97% of Actix-Web speed
 - WebSocket performance: Built on Tokio for maximum async efficiency
 - Nearly 10x faster than Express.js + Socket.io
 
-**💡 Superior Developer Experience**
+** Superior Developer Experience**
 
 - Express.js-familiar API that feels natural
 - Type-safe from the ground up
 - Comprehensive CLI for rapid scaffolding
 - Seamless integration between all components
 
-**⚡ Modern Architecture**
+** Modern Architecture**
 
 - Async/await support throughout
 - HTTP/2 support via Hyper
 - Real-time WebSocket capabilities
-- Production-ready from day one
+- Production-ready HTTP and WebSocket layers from day one
 
 ![Performance Benchmark](./benchmark.png)
 
@@ -53,7 +55,7 @@ HexStack is a complete, modern web framework for Rust that combines the familiar
 
 ## Overview
 
-HexStack is designed to be the Rails/Laravel of the Rust ecosystem - a complete, opinionated framework that provides everything you need to build modern web applications. With its CLI tool, you can scaffold new projects in seconds and start building immediately.
+HexStack is designed to be the Rails/Laravel of the Rust ecosystem - a complete, opinionated framework paired with a CLI that scaffolds new projects in seconds so you can start building immediately. The HTTP and WebSocket layers (Ripress + Wynd) are production-ready; the ORM layer (Lume) is still experimental — see [Ecosystem](#ecosystem).
 
 ## Features
 
@@ -104,6 +106,8 @@ hexstack new my-ws --template websocket
 - **`http`** - Ripress HTTP server only
 - **`websocket`** - Wynd WebSocket server only
 - **`full`** - Ripress + Wynd integrated server _(default)_
+
+> Templates currently scaffold the HTTP and WebSocket layers (Ripress + Wynd). Lume-based data-layer scaffolding isn't included yet, since Lume itself is still experimental.
 
 ## Examples
 
@@ -229,7 +233,7 @@ Your server will be running on `http://localhost:3000` with WebSocket support at
 
 ## Ecosystem
 
-HexStack is built on top of these powerful libraries:
+HexStack is built on top of these libraries:
 
 ### [Ripress](https://github.com/guru901/ripress) - HTTP Server
 
@@ -245,12 +249,13 @@ HexStack is built on top of these powerful libraries:
 - Type-safe message handling
 - Seamless HTTP integration
 
-### [Lume](https://github.com/guru901/lume) - ORM _(Coming Soon)_
+### [Lume](https://github.com/guru901/lume) - ORM _(Experimental)_
 
 - Type-safe queries
 - Schema-first approach
 - Migration system
 - Relationship handling
+- **Status**: functional but rough around the edges — not yet recommended for real projects. Use Ripress + Wynd on their own, or bring your own data layer, until Lume matures.
 
 ## Performance
 
@@ -264,7 +269,7 @@ HexStack delivers exceptional performance across the stack:
 ## Contributing
 
 We don't take contributions yet, but your feedback is always welcome!
-If you have any questions or suggestions, feel free to reach out to us on [X](https://x.com/Gurvinder_911).
+If you have any questions or suggestions, feel free to reach out to us on [Discord](https://discord.com/users/chickensoupdedo).
 
 ## License
 
